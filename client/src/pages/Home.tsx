@@ -3,44 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { UploadZone } from "@/components/UploadZone";
 import { useAnalyze } from "@/hooks/use-predictions";
-import { Beaker, Map, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Beaker, Map, RotateCcw, CheckCircle2, BarChart3, Grid3X3 } from "lucide-react";
 import type { PredictionResponse } from "@shared/routes";
 
 export default function Home() {
   const [result, setResult] = useState<PredictionResponse | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { mutate: analyze, isPending } = useAnalyze();
-  const classLabels = ["Rose", "Tulip", "Daisy", "Sunflower"];
-  const metricValues = [
-    result?.metrics.accuracy ?? 0,
-    result?.metrics.precision ?? 0,
-    result?.metrics.recall ?? 0,
-    result?.metrics.f1Score ?? 0,
-  ];
-  const offDiagonalBase = result
-    ? Math.max(
-        1,
-        Math.round(
-          (result.confusionMatrix.falsePositive + result.confusionMatrix.falseNegative) /
-            4
-        )
-      )
-    : 2;
-  const confusionHeatmap = classLabels.map((_, rowIdx) =>
-    classLabels.map((_, colIdx) => {
-      if (rowIdx === colIdx) {
-        return Math.max(1, Math.min(100, Math.round(metricValues[rowIdx])));
-      }
-      return Math.max(1, Math.min(99, offDiagonalBase + ((rowIdx + colIdx) % 3)));
-    })
-  );
-
-  const getHeatCellClass = (value: number) => {
-    if (value >= 90) return "bg-[#114f9e] text-white";
-    if (value >= 70) return "bg-[#0d407f] text-white";
-    if (value >= 40) return "bg-[#0a3468] text-[#d3e7ff]";
-    return "bg-[#072a54] text-[#b9d6ff]";
-  };
 
   const handleUpload = (base64: string) => {
     setUploadedImage(base64);
@@ -252,96 +221,75 @@ export default function Home() {
                   </div>
 
                   {/* Evaluation Metrics + Confusion Matrix */}
-                  <div className="rounded-3xl border border-[#19467f] bg-[#09264d] p-6 text-white shadow-xl shadow-[#03142d]/30">
-                    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                      <div className="rounded-2xl border border-[#1d4d8a] bg-[#0a2f5d] p-4">
-                        <h3 className="mb-4 text-sm font-semibold text-[#d6e8ff]">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="rounded-3xl border border-border/60 bg-white/60 dark:bg-card/60 p-6 backdrop-blur-sm">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="rounded-xl bg-secondary p-2 text-secondary-foreground">
+                          <BarChart3 className="h-5 w-5" />
+                        </div>
+                        <h3
+                          style={{ fontFamily: "var(--font-display)" }}
+                          className="text-lg font-bold text-foreground"
+                        >
+                          Model Metrics
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: "Accuracy", value: result.metrics.accuracy },
+                          { label: "Precision", value: result.metrics.precision },
+                          { label: "Recall", value: result.metrics.recall },
+                          { label: "F1-Score", value: result.metrics.f1Score },
+                        ].map((metric) => (
+                          <div
+                            key={metric.label}
+                            className="rounded-xl border border-border/40 bg-gradient-to-br from-primary/5 to-primary/2 p-3"
+                          >
+                            <p className="text-xs font-medium text-muted-foreground">{metric.label}</p>
+                            <p className="text-lg font-bold text-foreground">{metric.value.toFixed(1)}%</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-border/60 bg-white/60 dark:bg-card/60 p-6 backdrop-blur-sm">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="rounded-xl bg-secondary p-2 text-secondary-foreground">
+                          <Grid3X3 className="h-5 w-5" />
+                        </div>
+                        <h3
+                          style={{ fontFamily: "var(--font-display)" }}
+                          className="text-lg font-bold text-foreground"
+                        >
                           Confusion Matrix
                         </h3>
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full table-fixed text-center text-sm">
-                            <thead>
-                              <tr>
-                                <th className="px-2 py-2 text-left text-[11px] font-semibold text-[#9dc4f7]">
-                                  &nbsp;
-                                </th>
-                                {classLabels.map((label) => (
-                                  <th
-                                    key={`head-${label}`}
-                                    className="px-2 py-2 text-[11px] font-semibold text-[#9dc4f7]"
-                                  >
-                                    {label}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {classLabels.map((rowLabel, rowIdx) => (
-                                <tr key={`row-${rowLabel}`}>
-                                  <td className="px-2 py-2 text-left text-[11px] font-semibold text-[#9dc4f7]">
-                                    {rowLabel}
-                                  </td>
-                                  {confusionHeatmap[rowIdx].map((value, colIdx) => (
-                                    <td key={`${rowLabel}-${classLabels[colIdx]}`} className="px-1 py-1">
-                                      <div
-                                        className={`rounded-md border border-[#2c65a8]/60 py-1.5 font-bold ${getHeatCellClass(
-                                          value
-                                        )}`}
-                                      >
-                                        {value}
-                                      </div>
-                                    </td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                        <div className="mt-4 px-2">
-                          <div className="h-2 rounded-full bg-gradient-to-r from-[#d7e9ff] via-[#4e9df0] to-[#083d85]" />
-                          <div className="mt-1 flex justify-between text-[10px] text-[#9dc4f7]">
-                            <span>0</span>
-                            <span>100</span>
-                          </div>
-                        </div>
                       </div>
-
-                      <div className="rounded-2xl border border-[#1d4d8a] bg-[#0a2f5d] p-4">
-                        <h3 className="mb-4 text-sm font-semibold text-[#d6e8ff]">Model Performance</h3>
-                        <div className="mb-3 rounded-xl border border-[#2b67aa] bg-[#0b3568] p-4 text-center">
-                          <p className="text-xs font-semibold text-[#a9cbf8]">Accuracy</p>
-                          <p className="text-4xl font-extrabold leading-none text-[#8ee36f]">
-                            {result.metrics.accuracy.toFixed(1)}%
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            {
-                              label: "Precision",
-                              value: result.metrics.precision,
-                              className: "bg-[#1b61bf] border-[#3a80dc]",
-                            },
-                            {
-                              label: "Recall",
-                              value: result.metrics.recall,
-                              className: "bg-[#5d3ea7] border-[#7c59d0]",
-                            },
-                            {
-                              label: "F1-Score",
-                              value: result.metrics.f1Score,
-                              className: "bg-[#d97706] border-[#e89a3f]",
-                            },
-                          ].map((metric) => (
-                            <div
-                              key={metric.label}
-                              className={`rounded-lg border p-2 text-center ${metric.className}`}
-                            >
-                              <p className="text-[11px] font-semibold text-[#edf4ff]">{metric.label}</p>
-                              <p className="text-lg font-bold text-white">{metric.value.toFixed(1)}%</p>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="overflow-hidden rounded-xl border border-border/50">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/50">
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Actual \\ Predicted</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Positive</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Negative</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-t border-border/50">
+                              <td className="px-3 py-2 font-medium text-foreground">Positive</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.truePositive}</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falseNegative}</td>
+                            </tr>
+                            <tr className="border-t border-border/50">
+                              <td className="px-3 py-2 font-medium text-foreground">Negative</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falsePositive}</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.trueNegative}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Total Samples: {result.confusionMatrix.totalSamples}
+                      </p>
                     </div>
                   </div>
                 </motion.div>
