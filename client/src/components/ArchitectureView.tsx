@@ -179,18 +179,6 @@ export function ArchitectureView() {
           </div>
         </motion.div>
 
-        {/* Note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-12 p-6 bg-blue-500/10 border border-blue-500/30 rounded-2xl text-center"
-        >
-          <p className="text-blue-300 text-sm">
-            ℹ️ This architecture visualization is for reference only. The actual flower classification 
-            results are powered by Google Gemini API with local fallback analysis.
-          </p>
-        </motion.div>
       </div>
     </div>
   );
