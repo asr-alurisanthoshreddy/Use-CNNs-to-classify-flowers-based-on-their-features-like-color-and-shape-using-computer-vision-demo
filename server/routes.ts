@@ -87,7 +87,8 @@ function buildFallbackEvaluation(base64Image: string, confidence: number) {
 
   const precision = clamp(base + offsetFromSeed(seed, 2, 5), 50, 99);
   const recall = clamp(base + offsetFromSeed(seed, 8, 6), 50, 99);
-  const f1Score = toOneDecimal((2 * precision * recall) / (precision + recall));
+  const f1Denominator = precision + recall;
+  const f1Score = f1Denominator === 0 ? 0 : toOneDecimal((2 * precision * recall) / f1Denominator);
 
   const totalSamples = 100;
   const actualPositive = clamp(50 + offsetFromSeed(seed, 14, 8), 30, 70);
@@ -96,7 +97,7 @@ function buildFallbackEvaluation(base64Image: string, confidence: number) {
   const truePositive = clamp(Math.round((recall / 100) * actualPositive), 0, actualPositive);
   const falseNegative = actualPositive - truePositive;
 
-  const predictedPositive = precision > 0 ? Math.round((truePositive * 100) / precision) : 0;
+  const predictedPositive = precision > 0 ? clamp(Math.round((truePositive * 100) / precision), 0, totalSamples) : 0;
   const falsePositive = clamp(predictedPositive - truePositive, 0, actualNegative);
   const trueNegative = actualNegative - falsePositive;
 
