@@ -1,0 +1,338 @@
+Build a full-stack AI system for flower classification and botanical knowledge inference using the Hybrid Spectral-Spatial Attention Network (HSSAN) architecture.
+
+The system must classify flowers and also infer phytochemical properties and geographic distribution.
+
+Use Python + PyTorch + Hugging Face APIs.
+If required knowledge or datasets are not available through Hugging Face, use Google Gemini API as a fallback.
+
+Core System Features
+
+The system must:
+
+Classify flower species from images.
+
+Simulate spectral features from RGB images.
+
+Use spectral-spatial CNN architecture.
+
+Apply channel attention (Squeeze-Excitation).
+
+Predict phytochemical compounds.
+
+Predict geographic distribution.
+
+Provide explainable AI attention maps.
+
+Project Structure
+
+Generate the following project:
+
+hssan-flower-ai/
+│
+├── backend/
+│   ├── dataset_loader.py
+│   ├── preprocessing.py
+│   ├── spectral_mapper.py
+│   ├── hssan_model.py
+│   ├── attention_module.py
+│   ├── phytochemical_predictor.py
+│   ├── geo_distribution.py
+│   ├── train.py
+│   ├── inference.py
+│   ├── explainability.py
+│
+├── api/
+│   ├── server.py
+│
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── style.css
+│
+├── requirements.txt
+└── README.md
+Dataset Integration
+
+Use Hugging Face datasets API to retrieve datasets.
+
+Possible datasets:
+
+oxford flowers 102
+
+iris flower dataset
+
+plantnet dataset
+
+flower photos datasets
+
+Example code:
+
+from datasets import load_dataset
+
+dataset = load_dataset("huggan/flowers-102-categories")
+
+Dataset pipeline must support:
+
+RGB images
+
+multispectral images
+
+hyperspectral images
+
+If spectral datasets are unavailable:
+
+Generate pseudo-spectral representation from RGB.
+
+Image Preprocessing
+
+Use torchvision transforms:
+
+Resize: 224x224
+Normalization
+Random rotation
+Horizontal flipping
+Brightness augmentation
+Tensor conversion
+RGB to Spectral Mapping Module
+
+Create a neural network to simulate spectral channels.
+
+Architecture:
+
+Input: RGB image
+
+Conv2D(3 → 32)
+ReLU
+Conv2D(32 → 64)
+ReLU
+Conv2D(64 → 16 spectral bands)
+
+Output:
+
+Pseudo spectral cube
+[batch, 16, height, width]
+Spectral-Spatial Feature Extraction
+
+Implement 3D CNN layers.
+
+Example architecture:
+
+Conv3D
+BatchNorm
+ReLU
+MaxPool3D
+Conv3D
+
+Purpose:
+
+Learn relationships between:
+
+color wavelengths
+
+flower pigmentation
+
+texture patterns
+
+Spatial Refinement Layer
+
+Convert 3D features to 2D.
+
+Apply CNN layers:
+
+Conv2D
+BatchNorm
+ReLU
+Conv2D
+MaxPool
+
+Extract:
+
+petal shape
+
+venation
+
+structural patterns
+
+Attention Module
+
+Implement Squeeze-and-Excitation attention block.
+
+Process:
+
+Global Average Pooling
+Dense Layer
+ReLU
+Dense Layer
+Sigmoid
+Channel Reweighting
+
+This improves discriminative learning.
+
+Feature Fusion
+
+Combine low-level and high-level features.
+
+Use:
+
+feature concatenation
+1x1 convolution
+Classification Head
+
+Use fully connected layers.
+
+Flatten
+Dense
+ReLU
+Dropout
+Dense
+Softmax
+
+Output:
+
+Flower species label
+Probability score
+Phytochemical Prediction Module
+
+Predict likely compounds such as:
+
+flavonoids
+
+alkaloids
+
+terpenoids
+
+phenolic acids
+
+Use embeddings from CNN backbone.
+
+If database unavailable:
+
+Use Google Gemini API.
+
+Example Gemini prompt:
+
+Given the plant species "X", list known phytochemicals and medicinal compounds.
+Geo-Distribution Module
+
+Map predicted species to ecological regions.
+
+Possible data sources:
+
+Hugging Face biodiversity datasets
+
+PlantNet metadata
+
+GBIF data
+
+If data unavailable:
+
+Query Gemini:
+
+Where is the flower species "X" geographically distributed?
+
+Return:
+
+continent
+countries
+climate zones
+Explainability
+
+Generate Class Activation Maps (CAM).
+
+Highlight:
+
+petal regions
+
+venation patterns
+
+flower centers
+
+API Backend
+
+Use FastAPI.
+
+Endpoint:
+
+POST /predict
+
+Input:
+
+flower image
+
+Output:
+
+{
+ species: "",
+ confidence: "",
+ phytochemicals: [],
+ geo_distribution: [],
+ attention_map: ""
+}
+Frontend
+
+Build a simple web UI.
+
+Features:
+
+upload flower image
+
+show predicted species
+
+show probability
+
+display phytochemicals
+
+show geo distribution
+
+visualize attention map
+
+Model Training
+
+Use:
+
+PyTorch
+Adam optimizer
+CrossEntropy loss
+
+Metrics:
+
+accuracy
+precision
+recall
+F1 score
+Deployment
+
+Export trained model to:
+
+ONNX
+TensorFlow Lite
+
+Provide inference support for:
+
+mobile
+edge devices
+web API
+Final Output
+
+System must return:
+
+Predicted Flower Species
+Confidence Score
+Phytochemical Compounds
+Geographic Distribution
+Attention Map Visualization
+Libraries
+
+Use:
+
+Python
+PyTorch
+HuggingFace datasets
+Transformers
+OpenCV
+NumPy
+FastAPI
+Matplotlib
+Additional Requirement
+
+Write clean modular code and ensure the system can scale to new botanical datasets.

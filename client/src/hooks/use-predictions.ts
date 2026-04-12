@@ -1,0 +1,53 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { type PredictionResponse } from "@shared/routes";
+import { useToast } from "@/hooks/use-toast";
+
+export function useAnalyze() {
+  const { toast } = useToast();
+
+  return useMutation<PredictionResponse, Error, string>({
+    mutationFn: async (base64Image: string) => {
+      const res = await fetch("/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64Image }),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        let errorMessage = "Failed to analyze image.";
+        try {
+          const errorData = await res.json();
+          if (errorData.message) errorMessage = errorData.message;
+        } catch {}
+        throw new Error(errorMessage);
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Analysis Complete",
+        description: "Your flower has been successfully classified.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Classification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export function usePrediction(id: number) {
+  return useQuery({
+    queryKey: [`/api/predictions/${id}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/predictions/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch prediction");
+      return res.json() as Promise<PredictionResponse>;
+    },
+  });
+}
