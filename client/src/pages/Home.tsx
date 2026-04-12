@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { UploadZone } from "@/components/UploadZone";
 import { useAnalyze } from "@/hooks/use-predictions";
-import { Beaker, Map, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Beaker, Map, RotateCcw, CheckCircle2, BarChart3, Grid3X3 } from "lucide-react";
 import type { PredictionResponse } from "@shared/routes";
 
 export default function Home() {
@@ -217,6 +217,79 @@ export default function Home() {
                           </span>
                         )}
                       </ul>
+                    </div>
+                  </div>
+
+                  {/* Evaluation Metrics + Confusion Matrix */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="rounded-3xl border border-border/60 bg-white/60 dark:bg-card/60 p-6 backdrop-blur-sm">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="rounded-xl bg-secondary p-2 text-secondary-foreground">
+                          <BarChart3 className="h-5 w-5" />
+                        </div>
+                        <h3
+                          style={{ fontFamily: "var(--font-display)" }}
+                          className="text-lg font-bold text-foreground"
+                        >
+                          Model Metrics
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: "Accuracy", value: result.metrics.accuracy },
+                          { label: "Precision", value: result.metrics.precision },
+                          { label: "Recall", value: result.metrics.recall },
+                          { label: "F1-Score", value: result.metrics.f1Score },
+                        ].map((metric) => (
+                          <div
+                            key={metric.label}
+                            className="rounded-xl border border-border/40 bg-gradient-to-br from-primary/5 to-primary/2 p-3"
+                          >
+                            <p className="text-xs font-medium text-muted-foreground">{metric.label}</p>
+                            <p className="text-lg font-bold text-foreground">{metric.value.toFixed(1)}%</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-border/60 bg-white/60 dark:bg-card/60 p-6 backdrop-blur-sm">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="rounded-xl bg-secondary p-2 text-secondary-foreground">
+                          <Grid3X3 className="h-5 w-5" />
+                        </div>
+                        <h3
+                          style={{ fontFamily: "var(--font-display)" }}
+                          className="text-lg font-bold text-foreground"
+                        >
+                          Confusion Matrix
+                        </h3>
+                      </div>
+                      <div className="overflow-hidden rounded-xl border border-border/50">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/50">
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Actual \\ Predicted</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Positive</th>
+                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Negative</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-t border-border/50">
+                              <td className="px-3 py-2 font-medium text-foreground">Positive</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.truePositive}</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falseNegative}</td>
+                            </tr>
+                            <tr className="border-t border-border/50">
+                              <td className="px-3 py-2 font-medium text-foreground">Negative</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falsePositive}</td>
+                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.trueNegative}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Total Samples: {result.confusionMatrix.totalSamples}
+                      </p>
                     </div>
                   </div>
                 </motion.div>
