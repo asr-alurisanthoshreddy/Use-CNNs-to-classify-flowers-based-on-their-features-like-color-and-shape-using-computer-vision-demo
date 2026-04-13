@@ -28,15 +28,15 @@ export default function Home() {
         {
           label: "Positive",
           cells: [
-            { label: "Predicted Positive", value: result.confusionMatrix.truePositive },
-            { label: "Predicted Negative", value: result.confusionMatrix.falseNegative },
+            { label: "Predicted Positive", metricLabel: "True Positive", value: result.confusionMatrix.truePositive },
+            { label: "Predicted Negative", metricLabel: "False Negative", value: result.confusionMatrix.falseNegative },
           ],
         },
         {
           label: "Negative",
           cells: [
-            { label: "Predicted Positive", value: result.confusionMatrix.falsePositive },
-            { label: "Predicted Negative", value: result.confusionMatrix.trueNegative },
+            { label: "Predicted Positive", metricLabel: "False Positive", value: result.confusionMatrix.falsePositive },
+            { label: "Predicted Negative", metricLabel: "True Negative", value: result.confusionMatrix.trueNegative },
           ],
         },
       ]
@@ -313,6 +313,7 @@ export default function Home() {
                                 <div
                                   key={`${row.label}-${cell.label}`}
                                   style={getConfusionCellStyle(cell.value)}
+                                  aria-label={`${cell.metricLabel}: ${cell.value}. Actual ${row.label}, ${cell.label}`}
                                   className="flex h-16 items-center justify-center rounded-lg border border-white/40 text-lg font-bold shadow-sm"
                                 >
                                   {cell.value}
@@ -321,11 +322,18 @@ export default function Home() {
                             </div>
                           ))}
                         </div>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <p
+                          aria-label="Axis label: Actual class"
+                          className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                        >
                           Actual Class
                         </p>
                         <div className="mt-3">
-                          <div className="h-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/50 to-primary" />
+                          <div
+                            role="presentation"
+                            aria-hidden="true"
+                            className="h-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/50 to-primary"
+                          />
                           <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
                             <span>0</span>
                             <span>{confusionMatrixMaxValue}</span>
