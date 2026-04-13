@@ -169,7 +169,7 @@ async function analyzeWithGemini(base64Image: string): Promise<AnalysisResult> {
 Return ONLY a raw JSON object — no markdown, no code fences, no explanation.
 
 Required fields:
-- isFlower: true if the image clearly contains a flower, otherwise false
+- isFlower: boolean (true if the image clearly contains a flower, otherwise false; for partial, wilted, or flower-like non-flower objects, return false unless a real flower is clearly visible)
 - species: the full scientific or common name of the flower
 - confidence: your confidence as an integer between 0 and 100
 - phytochemicals: array of exactly 5 objects with "name" and "benefits" fields
