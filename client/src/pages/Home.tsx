@@ -23,6 +23,38 @@ export default function Home() {
     setUploadedImage(null);
   };
 
+  const confusionMatrixRows = result
+    ? [
+        {
+          label: "Positive",
+          cells: [
+            { label: "Predicted Positive", value: result.confusionMatrix.truePositive },
+            { label: "Predicted Negative", value: result.confusionMatrix.falseNegative },
+          ],
+        },
+        {
+          label: "Negative",
+          cells: [
+            { label: "Predicted Positive", value: result.confusionMatrix.falsePositive },
+            { label: "Predicted Negative", value: result.confusionMatrix.trueNegative },
+          ],
+        },
+      ]
+    : [];
+
+  const confusionMatrixMaxValue = confusionMatrixRows.length
+    ? Math.max(...confusionMatrixRows.flatMap((row) => row.cells.map((cell) => cell.value)))
+    : 0;
+
+  const getConfusionCellStyle = (value: number) => {
+    const intensity = confusionMatrixMaxValue === 0 ? 0 : value / confusionMatrixMaxValue;
+    const lightness = 92 - intensity * 48;
+    return {
+      backgroundColor: `hsl(216 92% ${lightness}%)`,
+      color: intensity > 0.55 ? "hsl(0 0% 100%)" : "hsl(222 47% 11%)",
+    };
+  };
+
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-background">
       <Navbar />
@@ -264,28 +296,42 @@ export default function Home() {
                           Confusion Matrix
                         </h3>
                       </div>
-                      <div className="overflow-hidden rounded-xl border border-border/50">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-muted/50">
-                              <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Actual \\ Predicted</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Positive</th>
-                              <th className="px-3 py-2 text-center text-xs font-semibold text-muted-foreground">Negative</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr className="border-t border-border/50">
-                              <td className="px-3 py-2 font-medium text-foreground">Positive</td>
-                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.truePositive}</td>
-                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falseNegative}</td>
-                            </tr>
-                            <tr className="border-t border-border/50">
-                              <td className="px-3 py-2 font-medium text-foreground">Negative</td>
-                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.falsePositive}</td>
-                              <td className="px-3 py-2 text-center text-foreground">{result.confusionMatrix.trueNegative}</td>
-                            </tr>
-                          </tbody>
-                        </table>
+                      <div className="rounded-xl border border-border/50 bg-background/40 p-3">
+                        <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Predicted Class
+                        </p>
+                        <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2">
+                          <div className="px-2" />
+                          <div className="text-center text-xs font-semibold text-muted-foreground">Positive</div>
+                          <div className="text-center text-xs font-semibold text-muted-foreground">Negative</div>
+
+                          {confusionMatrixRows.map((row) => (
+                            <div key={row.label} className="contents">
+                              <div className="flex items-center pr-1 text-xs font-semibold text-muted-foreground">
+                                {row.label}
+                              </div>
+                              {row.cells.map((cell) => (
+                                <div
+                                  key={`${row.label}-${cell.label}`}
+                                  style={getConfusionCellStyle(cell.value)}
+                                  className="flex h-16 items-center justify-center rounded-lg border border-white/40 text-lg font-bold shadow-sm"
+                                >
+                                  {cell.value}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          True Class
+                        </p>
+                        <div className="mt-3">
+                          <div className="h-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/50 to-primary" />
+                          <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span>0</span>
+                            <span>{confusionMatrixMaxValue}</span>
+                          </div>
+                        </div>
                       </div>
                       <p className="mt-3 text-xs text-muted-foreground">
                         Total Samples: {result.confusionMatrix.totalSamples}
