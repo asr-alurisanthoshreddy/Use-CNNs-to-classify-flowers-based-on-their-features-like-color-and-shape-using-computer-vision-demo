@@ -32,10 +32,11 @@ export function useAnalyze() {
       });
     },
     onError: (error: Error) => {
+      const isNonFlowerWarning = error.message === "Please upload a flower image.";
       toast({
-        title: "Classification Failed",
+        title: isNonFlowerWarning ? "Warning" : "Classification Failed",
         description: error.message,
-        variant: "destructive",
+        variant: isNonFlowerWarning ? "default" : "destructive",
       });
     },
   });
