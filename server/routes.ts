@@ -25,6 +25,13 @@ interface AnalysisResult {
   };
 }
 
+class NonFlowerImageError extends Error {
+  constructor(message = "Please upload a flower image.") {
+    super(message);
+    this.name = "NonFlowerImageError";
+  }
+}
+
 function stripBase64Prefix(base64Image: string): string {
   return base64Image.replace(/^data:image\/[a-zA-Z+]+;base64,/, "");
 }
@@ -162,6 +169,9 @@ async function analyzeWithGemini(base64Image: string): Promise<AnalysisResult> {
 Return ONLY a raw JSON object — no markdown, no code fences, no explanation.
 
 Required fields:
+- isFlower: boolean.
+  - true only when a real flower is clearly visible
+  - false for non-flower images, flower-like objects, or unclear/partial cases
 - species: the full scientific or common name of the flower
 - confidence: your confidence as an integer between 0 and 100
 - phytochemicals: array of exactly 5 objects with "name" and "benefits" fields
@@ -177,7 +187,7 @@ Required fields:
   - truePositive, falsePositive, falseNegative, trueNegative, totalSamples
 
 Example format:
-{"species":"Rosa canina","confidence":92,"phytochemicals":[{"name":"Quercetin","benefits":"Anti-inflammatory, reduces allergies and joint pain"},{"name":"Rutin","benefits":"Strengthens blood vessels, improves circulation"},{"name":"Vitamin C","benefits":"Boosts immunity, supports wound healing"},{"name":"Tannins","benefits":"Antioxidant, anti-diarrheal properties"},{"name":"Carotenoids","benefits":"Eye health, antioxidant protection"}],"geoDistribution":["Europe","Western Asia","North Africa","North America"],"metrics":{"accuracy":91.4,"precision":90.1,"recall":89.6,"f1Score":89.8},"confusionMatrix":{"truePositive":45,"falsePositive":5,"falseNegative":6,"trueNegative":44,"totalSamples":100}}`;
+{"isFlower":true,"species":"Rosa canina","confidence":92,"phytochemicals":[{"name":"Quercetin","benefits":"Anti-inflammatory, reduces allergies and joint pain"},{"name":"Rutin","benefits":"Strengthens blood vessels, improves circulation"},{"name":"Vitamin C","benefits":"Boosts immunity, supports wound healing"},{"name":"Tannins","benefits":"Antioxidant, anti-diarrheal properties"},{"name":"Carotenoids","benefits":"Eye health, antioxidant protection"}],"geoDistribution":["Europe","Western Asia","North Africa","North America"],"metrics":{"accuracy":91.4,"precision":90.1,"recall":89.6,"f1Score":89.8},"confusionMatrix":{"truePositive":45,"falsePositive":5,"falseNegative":6,"trueNegative":44,"totalSamples":100}}`;
 
   try {
     const response = await fetch(
@@ -221,6 +231,9 @@ Example format:
 
     try {
       const parsed = parseGeminiJson(text);
+      if (parsed?.isFlower !== true) {
+        throw new NonFlowerImageError();
+      }
       const normalizedConfidence =
         typeof parsed.confidence === "number"
           ? Math.round(Math.min(100, Math.max(0, parsed.confidence)))
@@ -268,6 +281,9 @@ Example format:
         },
       };
     } catch (e) {
+      if (e instanceof NonFlowerImageError) {
+        throw e;
+      }
       console.warn("Failed to parse Gemini response — using local fallback", e);
       return generateLocalAnalysis();
     }
@@ -289,6 +305,10 @@ export async function registerRoutes(
       const result = await analyzeWithGemini(image);
       res.status(200).json(result);
     } catch (err) {
+      if (err instanceof NonFlowerImageError) {
+        return res.status(400).json({ message: err.message, code: "NON_FLOWER_IMAGE" });
+      }
+
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }

@@ -2,10 +2,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type PredictionResponse } from "@shared/routes";
 import { useToast } from "@/hooks/use-toast";
 
+type PredictionErrorWithCode = Error & { code?: string };
+
 export function useAnalyze() {
   const { toast } = useToast();
 
-  return useMutation<PredictionResponse, Error, string>({
+  return useMutation<PredictionResponse, PredictionErrorWithCode, string>({
     mutationFn: async (base64Image: string) => {
       const res = await fetch("/api/predict", {
         method: "POST",
@@ -16,11 +18,15 @@ export function useAnalyze() {
 
       if (!res.ok) {
         let errorMessage = "Failed to analyze image.";
+        let errorCode: string | undefined;
         try {
           const errorData = await res.json();
           if (errorData.message) errorMessage = errorData.message;
+          if (typeof errorData.code === "string") errorCode = errorData.code;
         } catch {}
-        throw new Error(errorMessage);
+        const error = new Error(errorMessage) as PredictionErrorWithCode;
+        error.code = errorCode;
+        throw error;
       }
 
       return res.json();
@@ -31,11 +37,12 @@ export function useAnalyze() {
         description: "Your flower has been successfully classified.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: PredictionErrorWithCode) => {
+      const isNonFlowerWarning = error.code === "NON_FLOWER_IMAGE";
       toast({
-        title: "Classification Failed",
+        title: isNonFlowerWarning ? "Warning" : "Classification Failed",
         description: error.message,
-        variant: "destructive",
+        variant: isNonFlowerWarning ? "default" : "destructive",
       });
     },
   });
