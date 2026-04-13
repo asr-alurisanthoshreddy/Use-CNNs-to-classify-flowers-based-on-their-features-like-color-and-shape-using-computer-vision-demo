@@ -301,8 +301,7 @@ export default function Home() {
                           Predicted Class
                         </p>
                         <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2">
-                          <div className="px-2" />
-                          <div className="text-center text-xs font-semibold text-muted-foreground">Positive</div>
+                          <div className="col-start-2 text-center text-xs font-semibold text-muted-foreground">Positive</div>
                           <div className="text-center text-xs font-semibold text-muted-foreground">Negative</div>
 
                           {confusionMatrixRows.map((row) => (
@@ -323,7 +322,7 @@ export default function Home() {
                           ))}
                         </div>
                         <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          True Class
+                          Actual Class
                         </p>
                         <div className="mt-3">
                           <div className="h-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/50 to-primary" />
