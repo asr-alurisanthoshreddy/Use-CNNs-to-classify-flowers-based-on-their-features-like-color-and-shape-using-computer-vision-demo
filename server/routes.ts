@@ -304,7 +304,7 @@ export async function registerRoutes(
       res.status(200).json(result);
     } catch (err) {
       if (err instanceof NonFlowerImageError) {
-        return res.status(400).json({ message: err.message });
+        return res.status(400).json({ message: err.message, code: "NON_FLOWER_IMAGE" });
       }
 
       if (err instanceof z.ZodError) {
