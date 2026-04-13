@@ -81,9 +81,8 @@ export default function Home() {
                   Botanical Intelligence at Scale.
                 </h1>
                 <p className="text-lg leading-relaxed text-muted-foreground text-balance">
-                  Upload a flower image. HSSAN identifies the species, maps geographic
-                  distribution, and extracts key phytochemical properties with
-                  spectral-spatial attention mechanisms.
+                  Upload a flower image. HSSAN analyzes visual features like color
+                  and shape to identify the flower species using computer vision.
                 </p>
               </section>
 
