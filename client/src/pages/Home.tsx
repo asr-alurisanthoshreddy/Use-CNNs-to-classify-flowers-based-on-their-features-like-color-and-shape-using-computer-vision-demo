@@ -322,15 +322,11 @@ export default function Home() {
                             </div>
                           ))}
                         </div>
-                        <p
-                          aria-label="Axis label: Actual class"
-                          className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
-                        >
+                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                           Actual Class
                         </p>
                         <div className="mt-3">
                           <div
-                            role="presentation"
                             aria-hidden="true"
                             className="h-2 rounded-full bg-gradient-to-r from-primary/10 via-primary/50 to-primary"
                           />
