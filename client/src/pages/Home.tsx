@@ -300,13 +300,22 @@ export default function Home() {
                         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                           Predicted Class
                         </p>
-                        <div className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2">
-                          <div className="col-start-2 text-center text-xs font-semibold text-muted-foreground">Positive</div>
+                        <div
+                          aria-label="Confusion matrix where rows represent actual class and columns represent predicted class"
+                          className="grid grid-cols-[auto_repeat(2,minmax(0,1fr))] gap-2"
+                        >
+                          <div className="flex items-center pr-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            Actual
+                          </div>
+                          <div className="text-center text-xs font-semibold text-muted-foreground">Positive</div>
                           <div className="text-center text-xs font-semibold text-muted-foreground">Negative</div>
 
                           {confusionMatrixRows.map((row) => (
                             <div key={row.label} className="contents">
-                              <div className="flex items-center pr-1 text-xs font-semibold text-muted-foreground">
+                              <div
+                                aria-label={`Actual Class: ${row.label}`}
+                                className="flex items-center pr-1 text-xs font-semibold text-muted-foreground"
+                              >
                                 {row.label}
                               </div>
                               {row.cells.map((cell) => (
@@ -322,9 +331,6 @@ export default function Home() {
                             </div>
                           ))}
                         </div>
-                        <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Actual Class
-                        </p>
                         <div className="mt-3">
                           <div
                             aria-hidden="true"
